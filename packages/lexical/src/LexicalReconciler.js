@@ -812,12 +812,7 @@ function reconcileSelection(
   const focusOffset = domSelection.focusOffset;
   const activeElement = document.activeElement;
   const rootElement = editor._rootElement;
-  // TODO: make this not hard-coded, and add another config option
-  // that makes this configurable.
-  if (
-    editor._updateTags.has('collaboration') &&
-    activeElement !== rootElement
-  ) {
+  if (!editor._updateTags.has('dom') && activeElement !== rootElement) {
     return;
   }
 

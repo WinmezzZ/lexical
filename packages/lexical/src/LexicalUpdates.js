@@ -56,6 +56,7 @@ let activeEditor: null | LexicalEditor = null;
 let isReadOnlyMode: boolean = false;
 let isAttemptingToRecoverFromReconcilerError: boolean = false;
 let infiniteTransformCount: number = 0;
+let scheduledCommit: boolean = false;
 
 export function isCurrentlyReadOnlyMode(): boolean {
   return isReadOnlyMode;
@@ -400,6 +401,7 @@ export function commitPendingUpdates(editor: LexicalEditor): void {
     editor._dirtyElements = new Map();
     editor._normalizedNodes = new Set();
     editor._updateTags = new Set();
+    // reset shceudle commit here
   }
   $garbageCollectDetachedDecorators(editor, pendingEditorState);
   const pendingDecorators = editor._pendingDecorators;
@@ -569,9 +571,17 @@ function beginUpdate(
 
   if (options !== undefined) {
     onUpdate = options.onUpdate;
+    // TODO change to an array
     tag = options.tag;
     if (tag != null) {
       updateTags.add(tag);
+    }
+    if (
+      scheduledCommit &&
+      ((tag != null && !updateTags.has(tag)) ||
+        (tag == null && updateTags.size > 0))
+    ) {
+      commitPendingUpdates(editor);
     }
     skipTransforms = options.skipTransforms;
   }
@@ -675,6 +685,7 @@ function beginUpdate(
       scheduleMicroTask(() => {
         commitPendingUpdates(editor);
       });
+      scheduledCommit = true;
     }
   } else {
     pendingEditorState._flushSync = false;

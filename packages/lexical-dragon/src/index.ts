@@ -54,21 +54,51 @@ export function registerDragonSupport(editor: LexicalEditor): () => void {
             // TODO: we should probably handle formatCommand somehow?
             // eslint-disable-next-line no-unused-expressions
             formatCommand;
-            editor.update(() => {
-              const selection = $getSelection();
+            editor.update(
+              () => {
+                const selection = $getSelection();
 
-              if ($isRangeSelection(selection)) {
-                const anchor = selection.anchor;
-                let anchorNode = anchor.getNode();
-                let setSelStart = 0;
-                let setSelEnd = 0;
+                if ($isRangeSelection(selection)) {
+                  const anchor = selection.anchor;
+                  let anchorNode = anchor.getNode();
+                  let setSelStart = 0;
+                  let setSelEnd = 0;
 
-                if ($isTextNode(anchorNode)) {
-                  // set initial selection
-                  if (elementStart >= 0 && elementLength >= 0) {
-                    setSelStart = elementStart;
-                    setSelEnd = elementStart + elementLength;
+                  if ($isTextNode(anchorNode)) {
+                    // set initial selection
+                    if (elementStart >= 0 && elementLength >= 0) {
+                      setSelStart = elementStart;
+                      setSelEnd = elementStart + elementLength;
+                      // If the offset is more than the end, make it the end
+                      selection.setTextNodeRange(
+                        anchorNode,
+                        setSelStart,
+                        anchorNode,
+                        setSelEnd,
+                      );
+                    }
+                  }
+
+                  if (setSelStart !== setSelEnd || text !== '') {
+                    selection.insertRawText(text);
+                    anchorNode = anchor.getNode();
+                  }
+
+                  if ($isTextNode(anchorNode)) {
+                    // set final selection
+                    setSelStart = selStart;
+                    setSelEnd = selStart + selLength;
+                    const anchorNodeTextLength =
+                      anchorNode.getTextContentSize();
                     // If the offset is more than the end, make it the end
+                    setSelStart =
+                      setSelStart > anchorNodeTextLength
+                        ? anchorNodeTextLength
+                        : setSelStart;
+                    setSelEnd =
+                      setSelEnd > anchorNodeTextLength
+                        ? anchorNodeTextLength
+                        : setSelEnd;
                     selection.setTextNodeRange(
                       anchorNode,
                       setSelStart,
@@ -76,39 +106,15 @@ export function registerDragonSupport(editor: LexicalEditor): () => void {
                       setSelEnd,
                     );
                   }
-                }
 
-                if (setSelStart !== setSelEnd || text !== '') {
-                  selection.insertRawText(text);
-                  anchorNode = anchor.getNode();
+                  // block the chrome extension from handling this event
+                  event.stopImmediatePropagation();
                 }
-
-                if ($isTextNode(anchorNode)) {
-                  // set final selection
-                  setSelStart = selStart;
-                  setSelEnd = selStart + selLength;
-                  const anchorNodeTextLength = anchorNode.getTextContentSize();
-                  // If the offset is more than the end, make it the end
-                  setSelStart =
-                    setSelStart > anchorNodeTextLength
-                      ? anchorNodeTextLength
-                      : setSelStart;
-                  setSelEnd =
-                    setSelEnd > anchorNodeTextLength
-                      ? anchorNodeTextLength
-                      : setSelEnd;
-                  selection.setTextNodeRange(
-                    anchorNode,
-                    setSelStart,
-                    anchorNode,
-                    setSelEnd,
-                  );
-                }
-
-                // block the chrome extension from handling this event
-                event.stopImmediatePropagation();
-              }
-            });
+              },
+              {
+                tag: 'dom',
+              },
+            );
           }
         }
       }

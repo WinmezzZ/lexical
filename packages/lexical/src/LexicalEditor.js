@@ -611,6 +611,7 @@ export class LexicalEditor {
               callbackFn();
             }
           },
+          tag: 'dom',
         },
       );
     }

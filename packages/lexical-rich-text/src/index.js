@@ -83,6 +83,7 @@ const updateOptions: {
   skipTransforms?: true,
   tag?: string,
 } = options;
+const updateTagDOM = {tag: 'dom'};
 
 export class QuoteNode extends ElementNode {
   static getType(): string {
@@ -302,7 +303,7 @@ function onPasteForRichText(
     ) {
       $insertDataTransferForRichText(clipboardData, selection, editor);
     }
-  });
+  }, updateTagDOM);
 }
 
 function onCopyForRichText(event: ClipboardEvent, editor: LexicalEditor): void {
@@ -323,7 +324,7 @@ function onCopyForRichText(event: ClipboardEvent, editor: LexicalEditor): void {
         clipboardData.setData('text/plain', selection.getTextContent());
       }
     }
-  });
+  }, updateTagDOM);
 }
 
 function onCutForRichText(event: ClipboardEvent, editor: LexicalEditor): void {
@@ -333,7 +334,7 @@ function onCutForRichText(event: ClipboardEvent, editor: LexicalEditor): void {
     if ($isRangeSelection(selection)) {
       selection.removeText();
     }
-  });
+  }, updateTagDOM);
 }
 
 function handleIndentAndOutdent(

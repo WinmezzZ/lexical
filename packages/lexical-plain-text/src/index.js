@@ -56,6 +56,7 @@ const updateOptions: {
   skipTransforms?: true,
   tag?: string,
 } = options;
+const updateTagDOM = {tag: 'dom'};
 
 function onCopyForPlainText(
   event: ClipboardEvent,

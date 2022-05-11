@@ -64,6 +64,10 @@ import {
 
 export const emptyFunction = () => {};
 
+export const updateTagDOM = {
+  tag: 'dom',
+};
+
 let keyCounter = 0;
 
 export function resetRandomKey(): void {
@@ -552,7 +556,7 @@ export function $updateTextNodeFromDOMContent(
               if (node.isAttached()) {
                 node.remove();
               }
-            });
+            }, updateTagDOM);
           }, 20);
         } else {
           node.remove();

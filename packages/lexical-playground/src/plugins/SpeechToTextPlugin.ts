@@ -76,24 +76,27 @@ function SpeechToTextPlugin(): null {
             return;
           }
 
-          editor.update(() => {
-            const selection = $getSelection();
+          editor.update(
+            () => {
+              const selection = $getSelection();
 
-            if ($isRangeSelection(selection)) {
-              const command = VOICE_COMMANDS[transcript.toLowerCase().trim()];
+              if ($isRangeSelection(selection)) {
+                const command = VOICE_COMMANDS[transcript.toLowerCase().trim()];
 
-              if (command) {
-                command({
-                  editor,
-                  selection,
-                });
-              } else if (transcript.match(/\s*\n\s*/)) {
-                selection.insertParagraph();
-              } else {
-                selection.insertText(transcript);
+                if (command) {
+                  command({
+                    editor,
+                    selection,
+                  });
+                } else if (transcript.match(/\s*\n\s*/)) {
+                  selection.insertParagraph();
+                } else {
+                  selection.insertText(transcript);
+                }
               }
-            }
-          });
+            },
+            {tag: 'dom'},
+          );
         },
       );
     }
